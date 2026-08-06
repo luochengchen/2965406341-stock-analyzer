@@ -1,31 +1,7 @@
 """Stock Analyzer Web App — mobile-friendly Flask server."""
-from __future__ import annotations
-import sys
 from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
-
-# Lazy import to catch startup errors
-fetcher = None
-indicators = None
-analyzer = None
-positions_module = None
-
-def _lazy_import():
-    global fetcher, indicators, analyzer, positions_module
-    if fetcher is None:
-        from fetcher import resolve_stock_code, fetch_daily_kline, get_stock_info
-        from indicators import calc_all
-        from analyzer import ShortTermAnalyzer, LongTermAnalyzer
-        from positions import PositionCalculator
-        import fetcher as _fetcher
-        import indicators as _indicators
-        import analyzer as _analyzer
-        import positions as _positions
-        fetcher = _fetcher
-        indicators = _indicators
-        analyzer = _analyzer
-        positions_module = _positions
 
 
 @app.route("/")
@@ -35,30 +11,32 @@ def index():
 
 @app.route("/api/ping")
 def api_ping():
-    """Health check endpoint."""
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "msg": "server is running"})
 
 
 @app.route("/api/analyze", methods=["POST"])
 def api_analyze():
-    """Analyze a stock by code or name. Returns JSON."""
     data = request.get_json()
     query = data.get("query", "").strip()
     if not query:
         return jsonify({"error": "请输入股票代码或名称"}), 400
 
     try:
-        _lazy_import()
-        code, name = fetcher.resolve_stock_code(query)
-        df = fetcher.fetch_daily_kline(code)
-        df = indicators.calc_all(df)
+        from fetcher import resolve_stock_code, fetch_daily_kline, get_stock_info
+        from indicators import calc_all
+        from analyzer import ShortTermAnalyzer, LongTermAnalyzer
+        from positions import PositionCalculator
 
-        short = analyzer.ShortTermAnalyzer(df, name, code).analyze()
-        long_ = analyzer.LongTermAnalyzer(df, name, code).analyze()
-        pos = positions_module.PositionCalculator(df, short["supports"], short["resistances"]).calculate_all()
+        code, name = resolve_stock_code(query)
+        df = fetch_daily_kline(code)
+        df = calc_all(df)
+
+        short = ShortTermAnalyzer(df, name, code).analyze()
+        long_ = LongTermAnalyzer(df, name, code).analyze()
+        pos = PositionCalculator(df, short["supports"], short["resistances"]).calculate_all()
 
         try:
-            info = fetcher.get_stock_info(code)
+            info = get_stock_info(code)
             pct = info.get("pct_change", 0)
         except Exception:
             pct = 0
@@ -98,27 +76,6 @@ def api_analyze():
         return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": f"分析失败: {e}"}), 500
-
-
-@app.route("/api/search", methods=["POST"])
-def api_search():
-    """Search for stock by partial name."""
-    data = request.get_json()
-    query = data.get("query", "").strip()
-    if not query:
-        return jsonify([])
-    try:
-        import baostock as bs
-        bs.login()
-        rs = bs.query_stock_basic(code_name=query)
-        results = []
-        while rs.next():
-            row = rs.get_row_data()
-            results.append({"code": row[0].replace("sh.", "").replace("sz.", ""), "name": row[1]})
-        bs.logout()
-        return jsonify(results[:10])
-    except Exception:
-        return jsonify([])
 
 
 if __name__ == "__main__":
