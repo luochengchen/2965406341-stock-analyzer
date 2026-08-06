@@ -6,7 +6,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    try:
+        return render_template("index.html")
+    except Exception:
+        return "<h1>Stock Analyzer</h1><p>Template not found. API is available at /api/ping</p>"
 
 
 @app.route("/api/ping")
