@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>股票分析</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:#161b22;padding:12px 16px;position:sticky;top:0;z-index:10;border-bottom:1px solid #30363d}
+.header h1{font-size:17px;font-weight:700;text-align:center}
+.search-box{display:flex;gap:8px;margin:12px 16px}
+.search-box input{flex:1;background:#21262d;border:1px solid #30363d;border-radius:8px;padding:12px 14px;font-size:15px;color:#c9d1d9;outline:none;transition:border .2s}
+.search-box input:focus{border-color:#1f6feb}
+.search-box input::placeholder{color:#484f58}
+.search-box button{background:#1f6feb;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap}
+.search-box button:active{background:#388bfd}
+.quick-links{padding:0 16px 8px;display:flex;gap:8px;flex-wrap:wrap}
+.quick-links span{font-size:11px;color:#8b949e;padding:6px 10px;background:#21262d;border-radius:14px;cursor:pointer}
+.quick-links span:active{background:#30363d}
+.result-area{padding:0 16px 16px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:10px}
+.card-title{font-size:13px;font-weight:700;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.stock-header{display:flex;justify-content:space-between;align-items:flex-start}
+.stock-name{font-size:18px;font-weight:700}
+.stock-code{font-size:13px;color:#8b949e}
+.price-row{display:flex;align-items:baseline;gap:8px}
+.price{font-size:22px;font-weight:700}
+.change{font-size:14px;font-weight:600}
+.verdict-row{display:flex;gap:10px;margin-top:8px}
+.verdict{flex:1;background:#21262d;border-radius:8px;padding:12px;text-align:center}
+.verdict .label{font-size:11px;color:#8b949e;margin-bottom:4px}
+.verdict .text{font-size:13px;font-weight:700}
+.verdict .score{font-size:11px;margin-top:2px}
+.levels{display:flex;gap:8px;margin-top:8px}
+.level{flex:1;background:#21262d;border-radius:8px;padding:10px;text-align:center}
+.level .label{font-size:10px;color:#8b949e}
+.level .value{font-size:15px;font-weight:700;margin-top:2px}
+.level .sub{font-size:10px;color:#8b949e;margin-top:1px}
+.scores{margin-top:8px}
+.score-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #21262d}
+.score-row:last-child{border-bottom:none}
+.score-dim{font-size:12px;color:#8b949e;width:60px;flex-shrink:0}
+.score-val{font-size:12px;font-weight:700;width:32px;flex-shrink:0;text-align:center}
+.score-detail{font-size:11px;color:#c9d1d9;flex:1;margin-left:8px}
+.two-col{display:flex;gap:10px}
+.two-col .card{flex:1}
+.green{color:#3fb950}
+.red{color:#f85149}
+.yellow{color:#d2991d}
+.dim{color:#8b949e}
+.divider{height:1px;background:#30363d;margin:8px 0}
+.loading{text-align:center;padding:40px;color:#8b949e}
+.error{background:#49020233;border:1px solid #f85149;border-radius:10px;padding:14px;color:#f85149;font-size:13px;margin-bottom:10px}
+.hint{text-align:center;padding:40px 20px;color:#484f58;font-size:14px;line-height:1.6}
+.footer{text-align:center;padding:20px;color:#30363d;font-size:11px}
+</style>
+</head>
+<body>
+
+<div class="header"><h1>A股技术分析</h1></div>
+
+<div class="search-box">
+  <input type="text" id="query" placeholder="输入代码或名称..." autocomplete="off">
+  <button onclick="analyze()">查询</button>
+</div>
+
+<div class="quick-links">
+  <span onclick="quickSearch('000001')">平安银行</span>
+  <span onclick="quickSearch('600519')">贵州茅台</span>
+  <span onclick="quickSearch('300750')">宁德时代</span>
+  <span onclick="quickSearch('000858')">五粮液</span>
+</div>
+
+<div class="result-area" id="result">
+  <div class="hint">输入股票代码或名称<br>查看短线/长线分析报告<br>含止损、加仓、止盈建议</div>
+</div>
+
+<div class="footer">技术分析仅供参考 &middot; 不构成投资建议</div>
+
+<script>
+function quickSearch(code){ document.getElementById("query").value=code; analyze() }
+document.getElementById("query").addEventListener("keydown",e=>{if(e.key==="Enter")analyze()})
+
+async function analyze(){
+  const q=document.getElementById("query").value.trim();
+  if(!q)return;
+  document.getElementById("result").innerHTML='<div class="loading">分析中...</div>';
+  try{
+    const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:q})});
+    const d=await r.json();
+    if(d.error){ document.getElementById("result").innerHTML=`<div class="error">${d.error}</div>`; return }
+    render(d);
+  }catch(e){
+    document.getElementById("result").innerHTML=`<div class="error">网络错误: ${e.message}</div>`;
+  }
+}
+
+function render(d){
+  const pct=d.pct_change||0, sign=pct>=0?"+":"", pctCls=pct>=0?"green":"red";
+  const s=d.short_term||{}, l=d.long_term||{};
+  const sc=s.color=="green"?"green":s.color=="yellow"?"yellow":s.color=="red"?"red":"dim";
+  const lc=l.color=="green"?"green":l.color=="yellow"?"yellow":l.color=="red"?"red":"dim";
+
+  let pos=d.positions||{};
+  let sl=pos.stop_loss||{}, ap=pos.add_position||[], tp=pos.take_profit||[];
+  let slPrice=sl.price?sl.price.toFixed(2):"-", slDist=sl.dist_pct?sl.dist_pct.toFixed(1):"0";
+  let apStr=ap.length?ap.map(x=>x.price.toFixed(2)).join(", "):"-";
+  let tpStr=tp.length?tp.map(x=>x.price.toFixed(2)).join(", "):"-";
+
+  let html=`
+<div class="card">
+  <div class="stock-header">
+    <div><div class="stock-name">${d.name||""}</div><div class="stock-code">${d.code||""}</div></div>
+    <div class="price-row"><span class="price">${d.price.toFixed(2)}</span><span class="change ${pctCls}">${sign}${pct.toFixed(2)}%</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">综合判断</div>
+  <div class="verdict-row">
+    <div class="verdict"><div class="label">短线 (1-2周)</div><div class="text ${sc}">${s.verdict||"-"}</div><div class="score dim">评分: ${(s.total_score!=null?((s.total_score>=0?"+":"")+s.total_score.toFixed(1)):"-")}</div></div>
+    <div class="verdict"><div class="label">长线 (3-12月)</div><div class="text ${lc}">${l.verdict||"-"}</div><div class="score dim">评分: ${(l.total_score!=null?((l.total_score>=0?"+":"")+l.total_score.toFixed(1)):"-")}</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">关键价位</div>
+  <div class="levels">
+    <div class="level"><div class="label">止损位</div><div class="value red">${slPrice}</div><div class="sub">距现价 -${slDist}%</div></div>
+    <div class="level"><div class="label">加仓位</div><div class="value yellow">${apStr}</div><div class="sub">回踩支撑买入</div></div>
+    <div class="level"><div class="label">止盈位</div><div class="value green">${tpStr}</div><div class="sub">分批止盈</div></div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card"><div class="card-title">短线指标</div>${scoreRows(s.scores||{},s.details||{})}</div>
+  <div class="card"><div class="card-title">长线指标</div>${scoreRows(l.scores||{},l.details||{})}</div>
+</div>`;
+
+  document.getElementById("result").innerHTML=html;
+}
+
+function scoreRows(scores,details){
+  let h="";
+  for(let [dim,score] of Object.entries(scores)){
+    let c=score>0?"green":score<0?"red":"dim";
+    let t=(score>=0?"+":"")+score.toFixed(1);
+    h+=`<div class="score-row"><span class="score-dim">${dim}</span><span class="score-val ${c}">${t}</span><span class="score-detail">${details[dim]||""}</span></div>`;
+  }
+  return h;
+}
+</script>
+</body>
+</html>
