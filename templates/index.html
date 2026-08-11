@@ -11,16 +11,30 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh;-webkit-font-smoothing:antialiased}
 .header{background:#161b22;padding:12px 16px;position:sticky;top:0;z-index:10;border-bottom:1px solid #30363d}
 .header h1{font-size:17px;font-weight:700;text-align:center}
-.search-box{display:flex;gap:8px;margin:12px 16px}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid #30363d;background:#161b22;position:sticky;top:50px;z-index:9}
+.tab{flex:1;text-align:center;padding:10px 8px;font-size:13px;font-weight:600;color:#8b949e;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab:hover{color:#c9d1d9}
+.tab.active{color:#1f6feb;border-bottom-color:#1f6feb}
+.tab .badge{background:#1f6feb;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;display:none}
+
+.content{padding:12px 16px 16px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Existing styles */
+.search-box{display:flex;gap:8px;margin-bottom:10px}
 .search-box input{flex:1;background:#21262d;border:1px solid #30363d;border-radius:8px;padding:12px 14px;font-size:15px;color:#c9d1d9;outline:none;transition:border .2s}
 .search-box input:focus{border-color:#1f6feb}
 .search-box input::placeholder{color:#484f58}
 .search-box button{background:#1f6feb;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap}
 .search-box button:active{background:#388bfd}
-.quick-links{padding:0 16px 8px;display:flex;gap:8px;flex-wrap:wrap}
+.quick-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .quick-links span{font-size:11px;color:#8b949e;padding:6px 10px;background:#21262d;border-radius:14px;cursor:pointer}
 .quick-links span:active{background:#30363d}
-.result-area{padding:0 16px 16px}
+
+/* Cards */
 .card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:10px}
 .card-title{font-size:13px;font-weight:700;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
 .stock-header{display:flex;justify-content:space-between;align-items:flex-start}
@@ -47,6 +61,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .score-detail{font-size:11px;color:#c9d1d9;flex:1;margin-left:8px}
 .two-col{display:flex;gap:10px}
 .two-col .card{flex:1}
+
+/* Mini cards for batch results */
+.mini-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer}
+.mini-card.expanded{border-color:#1f6feb}
+.mini-row{display:flex;justify-content:space-between;align-items:center}
+.mini-name{font-size:14px;font-weight:700}
+.mini-code{font-size:11px;color:#8b949e}
+.mini-price{font-size:14px;font-weight:700;text-align:right}
+.mini-change{font-size:12px}
+.mini-advice{font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;display:inline-block}
+.mini-expand{font-size:11px;color:#8b949e;text-align:center;margin-top:6px}
+.mini-detail{display:none;margin-top:10px}
+.mini-card.expanded .mini-detail{display:block}
+
+/* Position edit modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;width:90%;max-width:360px}
+.modal h3{font-size:16px;margin-bottom:16px;text-align:center}
+.modal .field{margin-bottom:12px}
+.modal label{display:block;font-size:12px;color:#8b949e;margin-bottom:4px}
+.modal input{width:100%;background:#21262d;border:1px solid #30363d;border-radius:8px;padding:10px 14px;font-size:15px;color:#c9d1d9;outline:none}
+.modal input:focus{border-color:#1f6feb}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.modal-btns button{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-primary{background:#1f6feb;color:#fff}
+.btn-danger{background:#21262d;color:#f85149;border:1px solid #30363d !important}
+.btn-success{background:#238636;color:#fff}
+
+/* Colors */
 .green{color:#3fb950}
 .red{color:#f85149}
 .yellow{color:#d2991d}
@@ -56,49 +100,148 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .error{background:#49020233;border:1px solid #f85149;border-radius:10px;padding:14px;color:#f85149;font-size:13px;margin-bottom:10px}
 .hint{text-align:center;padding:40px 20px;color:#484f58;font-size:14px;line-height:1.6}
 .footer{text-align:center;padding:20px;color:#30363d;font-size:11px}
+.empty{text-align:center;padding:30px;color:#484f58;font-size:14px}
+
+/* Stock list rows */
+.stock-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;margin-bottom:6px}
+.stock-row .info{flex:1}
+.stock-row .info .name{font-size:14px;font-weight:600}
+.stock-row .info .code{font-size:11px;color:#8b949e}
+.stock-row .info .pos{font-size:11px;color:#d2991d;margin-top:2px}
+.stock-row .actions{display:flex;gap:6px;align-items:center}
+.stock-row .actions button{background:none;border:1px solid #30363d;color:#8b949e;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer}
+.stock-row .actions button:active{background:#21262d}
+.stock-row .actions .btn-del{color:#f85149;border-color:#f8514933}
+
+/* Batch button */
+.batch-btn{width:100%;background:#238636;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.batch-btn:active{background:#2ea043}
+.batch-btn:disabled{background:#21262d;color:#484f58}
+
+/* Position row */
+.pos-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;margin-bottom:6px}
+.pos-row .pos-info{flex:1}
+.pos-row .pos-info .pn{font-size:14px;font-weight:600}
+.pos-row .pos-info .detail{font-size:11px;color:#8b949e;margin-top:2px}
+.pos-row .pos-pnl{text-align:right}
+.pos-row .pos-pnl .pnl-val{font-size:14px;font-weight:700}
+.pos-row .pos-pnl .pnl-pct{font-size:12px}
+
+/* Inline add form */
+.inline-form{display:flex;gap:6px;margin-bottom:10px}
+.inline-form input{flex:1;background:#21262d;border:1px solid #30363d;border-radius:8px;padding:10px 12px;font-size:13px;color:#c9d1d9;outline:none}
+.inline-form input:focus{border-color:#1f6feb}
+.inline-form input::placeholder{color:#484f58}
+.inline-form button{background:#1f6feb;color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.textarea-hint{font-size:11px;color:#8b949e;margin:-6px 0 10px 0}
 </style>
 </head>
 <body>
 
 <div class="header"><h1>A股技术分析</h1></div>
 
-<div class="search-box">
-  <input type="text" id="query" placeholder="输入代码或名称..." autocomplete="off">
-  <button onclick="analyze()">查询</button>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('search')">搜索</div>
+  <div class="tab" onclick="switchTab('watchlist')">自选股<span class="badge" id="wl-badge"></span></div>
+  <div class="tab" onclick="switchTab('positions')">持仓<span class="badge" id="pos-badge"></span></div>
 </div>
 
-<div class="quick-links">
-  <span onclick="quickSearch('000001')">平安银行</span>
-  <span onclick="quickSearch('600519')">贵州茅台</span>
-  <span onclick="quickSearch('300750')">宁德时代</span>
-  <span onclick="quickSearch('000858')">五粮液</span>
+<div class="content">
+
+<!-- ======== Tab: 搜索 ======== -->
+<div class="tab-content active" id="tab-search">
+  <div class="search-box">
+    <input type="text" id="query" placeholder="输入代码或名称..." autocomplete="off">
+    <button onclick="analyze()">查询</button>
+  </div>
+  <div class="quick-links">
+    <span onclick="quickSearch('000001')">平安银行</span>
+    <span onclick="quickSearch('600519')">贵州茅台</span>
+    <span onclick="quickSearch('300750')">宁德时代</span>
+    <span onclick="quickSearch('000858')">五粮液</span>
+  </div>
+  <div id="search-result"><div class="hint">输入股票代码或名称<br>查看短线/长线分析报告<br>含止损、加仓、止盈建议</div></div>
 </div>
 
-<div class="result-area" id="result">
-  <div class="hint">输入股票代码或名称<br>查看短线/长线分析报告<br>含止损、加仓、止盈建议</div>
+<!-- ======== Tab: 自选股 ======== -->
+<div class="tab-content" id="tab-watchlist">
+  <button class="batch-btn" onclick="batchAnalyze()" id="batch-btn">⚡ 一键分析全部自选股</button>
+  <div class="inline-form">
+    <input type="text" id="add-code" placeholder="输入代码（如 000001）" autocomplete="off">
+    <button onclick="addWatchlist()">添加</button>
+  </div>
+  <div class="textarea-hint">或粘贴多行批量导入（每行一条代码）</div>
+  <div class="inline-form">
+    <input type="text" id="add-batch" placeholder="批量粘贴（多行代码）" autocomplete="off">
+    <button onclick="batchAddWatchlist()">批量导入</button>
+  </div>
+  <div class="divider"></div>
+  <div id="batch-result"></div>
+  <div id="wl-list"><div class="empty">加载中...</div></div>
 </div>
+
+<!-- ======== Tab: 持仓 ======== -->
+<div class="tab-content" id="tab-positions">
+  <div id="pos-list"><div class="empty">加载中...</div></div>
+</div>
+
+</div><!-- .content -->
 
 <div class="footer">技术分析仅供参考 &middot; 不构成投资建议</div>
 
+<!-- Position Edit Modal -->
+<div class="modal-overlay" id="pos-modal">
+  <div class="modal">
+    <h3 id="modal-title">编辑持仓</h3>
+    <div class="field">
+      <label>持股数量（股）</label>
+      <input type="number" id="modal-shares" placeholder="0" min="0" step="1">
+    </div>
+    <div class="field">
+      <label>持仓成本（元）</label>
+      <input type="number" id="modal-cost" placeholder="0.00" min="0" step="0.01">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-danger" onclick="closeModal()">取消</button>
+      <button class="btn-primary" onclick="savePosition()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ==================== Tab switching ====================
+let currentTab = 'search';
+let modalCode = '';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', false));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.tab')[tab==='search'?0:tab==='watchlist'?1:2].classList.add('active');
+  if (tab === 'watchlist') loadWatchlist();
+  if (tab === 'positions') loadPositions();
+}
+
+// ==================== Search (Tab 1) ====================
 function quickSearch(code){ document.getElementById("query").value=code; analyze() }
 document.getElementById("query").addEventListener("keydown",e=>{if(e.key==="Enter")analyze()})
 
 async function analyze(){
   const q=document.getElementById("query").value.trim();
   if(!q)return;
-  document.getElementById("result").innerHTML='<div class="loading">分析中...</div>';
+  document.getElementById("search-result").innerHTML='<div class="loading">分析中...</div>';
   try{
     const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:q})});
     const d=await r.json();
-    if(d.error){ document.getElementById("result").innerHTML=`<div class="error">${d.error}</div>`; return }
-    render(d);
+    if(d.error){ document.getElementById("search-result").innerHTML=`<div class="error">${d.error}</div>`; return }
+    renderSearch(d);
   }catch(e){
-    document.getElementById("result").innerHTML=`<div class="error">网络错误: ${e.message}</div>`;
+    document.getElementById("search-result").innerHTML=`<div class="error">网络错误: ${e.message}</div>`;
   }
 }
 
-function render(d){
+function renderSearch(d){
   const pct=d.pct_change||0, sign=pct>=0?"+":"", pctCls=pct>=0?"green":"red";
   const s=d.short_term||{}, l=d.long_term||{};
   const sc=s.color=="green"?"green":s.color=="yellow"?"yellow":s.color=="red"?"red":"dim";
@@ -121,8 +264,8 @@ function render(d){
 <div class="card">
   <div class="card-title">综合判断</div>
   <div class="verdict-row">
-    <div class="verdict"><div class="label">短线 (1-2周)</div><div class="text ${sc}">${s.verdict||"-"}</div><div class="score dim">评分: ${(s.total_score!=null?((s.total_score>=0?"+":"")+s.total_score.toFixed(1)):"-")}</div></div>
-    <div class="verdict"><div class="label">长线 (3-12月)</div><div class="text ${lc}">${l.verdict||"-"}</div><div class="score dim">评分: ${(l.total_score!=null?((l.total_score>=0?"+":"")+l.total_score.toFixed(1)):"-")}</div></div>
+    <div class="verdict"><div class="label">短线 (1-2周)</div><div class="text ${sc}">${s.verdict||"-"}</div><div class="score dim">评分: ${s.total_score!=null?((s.total_score>=0?"+":"")+s.total_score.toFixed(1)):"-"}</div></div>
+    <div class="verdict"><div class="label">长线 (3-12月)</div><div class="text ${lc}">${l.verdict||"-"}</div><div class="score dim">评分: ${l.total_score!=null?((l.total_score>=0?"+":"")+l.total_score.toFixed(1)):"-"}</div></div>
   </div>
 </div>
 
@@ -140,7 +283,7 @@ function render(d){
   <div class="card"><div class="card-title">长线指标</div>${scoreRows(l.scores||{},l.details||{})}</div>
 </div>`;
 
-  document.getElementById("result").innerHTML=html;
+  document.getElementById("search-result").innerHTML=html;
 }
 
 function scoreRows(scores,details){
@@ -152,6 +295,209 @@ function scoreRows(scores,details){
   }
   return h;
 }
+
+// ==================== Watchlist (Tab 2) ====================
+async function loadWatchlist(){
+  try{
+    const r=await fetch("/api/watchlist");
+    const d=await r.json();
+    const stocks=d.stocks||[];
+    updateBadge('wl-badge', stocks.length);
+    if(!stocks.length){
+      document.getElementById("wl-list").innerHTML='<div class="empty">自选股列表为空<br>在上方输入代码添加</div>';
+      return;
+    }
+    let html='';
+    stocks.forEach(s=>{
+      html+=`<div class="stock-row">
+        <div class="info">
+          <div class="name">${s.name||s.code}</div>
+          <div class="code">${s.code}</div>
+          ${s.has_position?`<div class="pos">持仓 ${s.shares}股 / 成本 ${s.cost.toFixed(2)}</div>`:''}
+        </div>
+        <div class="actions">
+          ${s.has_position?'':`<button onclick="openModal('${s.code}','${s.name||s.code}')">+持仓</button>`}
+          <button class="btn-del" onclick="delWatchlist('${s.code}')">×</button>
+        </div>
+      </div>`;
+    });
+    document.getElementById("wl-list").innerHTML=html;
+  }catch(e){
+    document.getElementById("wl-list").innerHTML=`<div class="error">加载失败: ${e.message}</div>`;
+  }
+}
+
+async function addWatchlist(){
+  const code=document.getElementById("add-code").value.trim();
+  if(!code){alert("请输入代码");return}
+  try{
+    const r=await fetch("/api/watchlist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})});
+    const d=await r.json();
+    if(d.error){alert(d.error);return}
+    document.getElementById("add-code").value='';
+    loadWatchlist();
+  }catch(e){alert("网络错误: "+e.message)}
+}
+
+async function batchAddWatchlist(){
+  const text=document.getElementById("add-batch").value.trim();
+  if(!text){alert("请粘贴代码");return}
+  try{
+    const r=await fetch("/api/watchlist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+    const d=await r.json();
+    if(d.error){alert(d.error);return}
+    document.getElementById("add-batch").value='';
+    alert(`成功导入 ${d.added} 只`);
+    loadWatchlist();
+  }catch(e){alert("网络错误: "+e.message)}
+}
+
+async function delWatchlist(code){
+  if(!confirm(`确认删除 ${code}？`))return;
+  await fetch("/api/watchlist/"+code,{method:"DELETE"});
+  loadWatchlist();
+}
+
+// ==================== Batch Analyze ====================
+async function batchAnalyze(){
+  const btn=document.getElementById("batch-btn");
+  btn.disabled=true; btn.textContent="分析中...";
+  document.getElementById("batch-result").innerHTML='<div class="loading">正在分析全部自选股...</div>';
+  try{
+    const r=await fetch("/api/batch_analyze",{method:"POST"});
+    const d=await r.json();
+    if(d.error){document.getElementById("batch-result").innerHTML=`<div class="error">${d.error}</div>`; return}
+    renderBatch(d);
+  }catch(e){
+    document.getElementById("batch-result").innerHTML=`<div class="error">网络错误: ${e.message}</div>`;
+  }finally{
+    btn.disabled=false; btn.textContent="⚡ 一键分析全部自选股";
+  }
+}
+
+function renderBatch(d){
+  const results=d.results||[];
+  if(!results.length){document.getElementById("batch-result").innerHTML='<div class="empty">没有分析结果</div>';return}
+
+  let html=`<div class="card-title" style="margin-bottom:10px">分析时间: ${d.analyzed_at||""} · 共 ${d.count} 只</div>`;
+
+  results.forEach((item,i)=>{
+    if(item.error){
+      html+=`<div class="mini-card"><div class="mini-row"><span class="mini-name">${item.name||item.code}</span><span class="dim">${item.error}</span></div></div>`;
+      return;
+    }
+    const pct=item.pct_change||0, sign=pct>=0?"+":"", pctCls=pct>=0?"green":"red";
+    const s=item.short_term||{}, l=item.long_term||{};
+    const sc=s.color=="green"?"green":s.color=="yellow"?"yellow":s.color=="red"?"red":"dim";
+    const lc=l.color=="green"?"green":l.color=="yellow"?"yellow":l.color=="red"?"red":"dim";
+    const rec=item.recommendation||{};
+    const advColor=rec.action==="加仓"?"green":rec.action==="减仓"?"yellow":rec.action==="止损"?"red":"dim";
+    const pos=item.position;
+    const posStr=pos?`<span class="dim">成本${pos.cost.toFixed(2)} · ${pos.shares}股 · </span><span class="${pos.profit_pct>=0?'green':'red'}">${pos.profit_pct>=0?'+':''}${pos.profit_pct.toFixed(1)}%</span>`:'';
+
+    html+=`<div class="mini-card" id="mini-${i}" onclick="toggleMini('${i}')">
+      <div class="mini-row">
+        <span>
+          <span class="mini-name">${item.name||item.code}</span>
+          <span class="mini-code"> ${item.code}</span>
+        </span>
+      </div>
+      <div class="mini-row" style="margin-top:4px">
+        <span>
+          <span class="mini-price">${item.price.toFixed(2)}</span>
+          <span class="mini-change ${pctCls}">${sign}${pct.toFixed(1)}%</span>
+        </span>
+        <span class="mini-advice ${advColor}" style="background:${rec.action==='加仓'?'#23863620':rec.action==='减仓'?'#d2991d20':rec.action==='止损'?'#f8514920':'#21262d'}">${rec.action||"-"}</span>
+      </div>
+      ${posStr?`<div style="font-size:12px;margin-top:2px">${posStr}</div>`:''}
+      ${rec.reason?`<div style="font-size:11px;color:#8b949e;margin-top:2px">${rec.reason}</div>`:''}
+      <div class="mini-expand">▼ 点击展开详情</div>
+      <div class="mini-detail" onclick="event.stopPropagation()">
+        <div class="divider"></div>
+        <div class="verdict-row">
+          <div class="verdict"><div class="label">短线</div><div class="text ${sc}">${s.verdict||"-"}</div><div class="score dim">${s.total_score!=null?((s.total_score>=0?"+":"")+s.total_score.toFixed(1)):"-"}</div></div>
+          <div class="verdict"><div class="label">长线</div><div class="text ${lc}">${l.verdict||"-"}</div><div class="score dim">${l.total_score!=null?((l.total_score>=0?"+":"")+l.total_score.toFixed(1)):"-"}</div></div>
+        </div>
+        <div class="two-col" style="margin-top:8px">
+          <div class="card" style="margin-bottom:0">${scoreRows(s.scores||{},s.details||{})}</div>
+          <div class="card" style="margin-bottom:0">${scoreRows(l.scores||{},l.details||{})}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("batch-result").innerHTML=html;
+}
+
+function toggleMini(i){
+  document.getElementById("mini-"+i).classList.toggle("expanded");
+}
+
+// ==================== Positions (Tab 3) ====================
+async function loadPositions(){
+  try{
+    const r=await fetch("/api/watchlist");
+    const d=await r.json();
+    const stocks=(d.stocks||[]).filter(s=>s.has_position);
+    updateBadge('pos-badge', stocks.length);
+    if(!stocks.length){
+      document.getElementById("pos-list").innerHTML='<div class="empty">暂无持仓<br>请先在"自选股"中添加并设置持仓</div>';
+      return;
+    }
+    let html='';
+    stocks.forEach(s=>{
+      html+=`<div class="pos-row" onclick="openModal('${s.code}','${s.name||s.code}',${s.shares},${s.cost})">
+        <div class="pos-info">
+          <div class="pn">${s.name||s.code} <span class="mini-code">${s.code}</span></div>
+          <div class="detail">${s.shares}股 × 成本 ${s.cost.toFixed(2)}</div>
+        </div>
+        <div class="pos-pnl"><span class="dim" style="font-size:11px">点击编辑</span></div>
+      </div>`;
+    });
+    document.getElementById("pos-list").innerHTML=html;
+  }catch(e){
+    document.getElementById("pos-list").innerHTML=`<div class="error">加载失败: ${e.message}</div>`;
+  }
+}
+
+// ==================== Modal ====================
+function openModal(code,name,shares=0,cost=0){
+  modalCode=code;
+  document.getElementById("modal-title").textContent=name+' '+code;
+  document.getElementById("modal-shares").value=shares||'';
+  document.getElementById("modal-cost").value=cost||'';
+  document.getElementById("pos-modal").classList.add("show");
+}
+
+function closeModal(){
+  document.getElementById("pos-modal").classList.remove("show");
+  modalCode='';
+}
+
+async function savePosition(){
+  const shares=parseInt(document.getElementById("modal-shares").value)||0;
+  const cost=parseFloat(document.getElementById("modal-cost").value)||0;
+  if(shares<=0||cost<=0){alert("股数和成本必须大于0");return}
+  try{
+    const r=await fetch("/api/position/"+modalCode,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({shares,cost})});
+    const d=await r.json();
+    if(d.error){alert(d.error);return}
+    closeModal();
+    loadWatchlist();
+    loadPositions();
+  }catch(e){alert("网络错误: "+e.message)}
+}
+
+// ==================== Helpers ====================
+function updateBadge(id, count){
+  const b=document.getElementById(id);
+  if(count>0){b.textContent=count;b.style.display='inline'}
+  else{b.style.display='none'}
+}
+
+// Init
+loadWatchlist();
+loadPositions();
 </script>
 </body>
 </html>
