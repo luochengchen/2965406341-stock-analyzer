@@ -1,5 +1,7 @@
 """Watchlist manager - JSON-based stock watchlist."""
 from __future__ import annotations
+
+from codes import norm_code
 import json
 import os
 from datetime import datetime
@@ -31,7 +33,7 @@ def save_watchlist(watchlist: list[dict]):
 def add_stock(code: str, name: str = "", notes: str = "") -> bool:
     """Add a stock to watchlist. Returns False if already exists."""
     watchlist = load_watchlist()
-    code = code.zfill(6)
+    code = norm_code(code)
     for entry in watchlist:
         if entry.get("code") == code:
             return False  # Already exists

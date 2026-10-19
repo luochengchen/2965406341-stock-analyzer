@@ -6,3 +6,11 @@ __pycache__/
 *.exe
 watchlist.json
 *.code-workspace
+# 用户数据（自选股 / 持仓）与插件运行时日志，不进版本库
+data/
+portfolio.json
+.dsh/
+.venv/
+server.log
+server.err.log
+shot-*.png

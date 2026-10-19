@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "title": "Stock Analyzer",
+    "description": "Adds two sidebar-foot entries for the stock_analyzer A-share technical analysis app (floating window or a real browser window) plus a data port DSH code can read results from."
+  },
+  "action": {
+    "title": "股票分析",
+    "hint": "Open the stock analyzer in a floating window"
+  },
+  "window": {
+    "title": "股票分析（新窗口）",
+    "hint": "Open the stock analyzer in its own browser window"
+  }
+}
