@@ -1,23 +1,26 @@
 # @local/stock-desk — 股票分析（DSH Web UI 入口）
 
-把 `E:\stock_analyzer` 的 A 股技术分析接到 DSH Web UI：侧边栏底部一个 K 线图标，
+把 `F:\dsh项目\stock_analyzer` 的 A 股技术分析接到 DSH Web UI：侧边栏底部一个 K 线图标，
 点一下在 Harness 里开一个**浮动窗口**跑这个 Flask 应用（可拖动、右下角可缩放、
 位置和大小记在 `localStorage`；Esc / ✕ / 再点图标都能收起）。想要真·独立窗口就用
-标题栏的「浏览器打开」——那条路走绝对 URL，交给系统默认浏览器。
+标题栏的「浏览器打开」——它请 Host 半的 `/stock/api/open` 用系统 URL 处理器
+（Win 上是 `rundll32 url.dll,FileProtocolHandler`）拉起默认浏览器。
 
 > **为什么用浮窗而不是 `window.open`**：DSH 桌面端在主窗口上注册了
 > `setWindowOpenHandler(({ url }) => { ...; return { action: "deny" } })`
-> （`app.asar` 内 `lib/main.js`），渲染进程里 **所有** `window.open` 都被拒绝，
-> 只有绝对 http/https 地址才交给 `shell.openExternal`。所以「点图标开独立窗口」
-> 在桌面端根本不会发生——`window.open` 返回 null，点了毫无反应。
-> 这也解释了接入后「打不开股票分析页面」那次：后端日志里连一条请求都没有。
+> （`app.asar` 内 `lib/main.js`），渲染进程里 **所有** `window.open` 都被拒绝。
+> 更狠的是 `allowedNavigation()`：`url.port === host.port` 且 hostname 是
+> `127.0.0.1` / `localhost` 时会被判成「往应用自身导航」，于是**连本站的绝对
+> URL 也拿不到 `shell.openExternal`**，`window.open` 静默返回、点了毫无反应。
+> 所以「浏览器打开」只能由 Host 半（独立 Node 进程，不受 Electron 导航策略管）
+> 去 spawn 系统 URL 处理器。
 
 ## 它是怎么工作的
 
 | 半 | 做什么 |
 |---|---|
-| Host (`index.js`) | ① 第一次有请求进来时才用 `.venv\Scripts\pythonw.exe web_app.py` 拉起 Flask 后端（`PORT=5117`、`detached`、日志写 `.dsh/backend.log`）；② 在 Harness Web 服务器上挂 `/stock` 前缀，反代到 `127.0.0.1:5117`；③ 往每个 HTML 响应注入数据口脚本；④ 后端还没起来时先回一张「正在启动分析服务…」页，页面自己轮询 `/stock/api/ping`，起来后自动跳转。 |
-| Client (`client.js`) | 侧边栏底部一个图标（`sidebar.footer.action` order 41）切换浮窗可见性；浮窗本体注册在 `shell.overlay`（order 91），内嵌 iframe 指向 `/stock/`。 |
+| Host (`index.js`) | ① 第一次有请求进来时才用 `.venv\Scripts\pythonw.exe web_app.py` 拉起 Flask 后端（`PORT=5117`、`detached`、日志写 `.dsh/backend.log`）；② 在 Harness Web 服务器上挂 `/stock` 前缀，反代到 `127.0.0.1:5117`；③ 往每个 HTML 响应注入数据口脚本；④ 后端还没起来时先回一张「正在启动分析服务…」页，页面自己轮询 `/stock/api/ping`，起来后自动跳转；⑤ `POST /stock/api/open`：用系统 URL 处理器打开本入口（只接受 `host[:port]` 形态，不让它变成任意跳板）。 |
+| Client (`client.js`) | 侧边栏底部一个图标（`sidebar.footer.action` order 41）切换浮窗可见性；浮窗本体注册在 `shell.overlay`（order 91），内嵌 iframe 指向 `/stock/`。标题栏「浏览器打开」调 `/stock/api/open`，成败都在标题栏下方给一行提示（失败时顺手把链接复制好）。 |
 
 **为什么走反代而不是让窗口直接开 `http://127.0.0.1:5117/`**：同 origin，没有跨域；
 `templates/index.html` 里的 `fetch("/api/...")` 全是绝对路径，反代时把 `"/api/`
@@ -36,7 +39,7 @@
 
 ## 数据（自选股 / 持仓）
 
-所有用户数据都在 **`E:\stock_analyzer\data\portfolio.json`**（`portfolio.py` 负责读写）：
+所有用户数据都在 **`F:\dsh项目\stock_analyzer\data\portfolio.json`**（`portfolio.py` 负责读写）：
 
 ```json
 { "stocks": { "600519": { "name": "贵州茅台", "added": "2026-10-18",
@@ -93,7 +96,7 @@ window.StockDeskBridge.call('/analyze', { method: 'POST', body: '{"query":"60051
 ## 安装（已在本机完成）
 
 1. `E:\dsh-home\profiles\desktop\package.json`
-   - `dependencies` 加 `"@local/stock-desk": "link:E:/stock_analyzer/dsh-plugin"`
+   - `dependencies` 加 `"@local/stock-desk": "link:F:/dsh项目/stock_analyzer/dsh-plugin"`
    - `dsh.profile.bundles` 加 `"@local/stock-desk"`
 2. `E:\dsh-home\profiles\desktop\node_modules\@local\stock-desk` → Junction 指向插件目录
 3. **完全退出并重启 DSH**（本 profile 没开 HMR，新增 bundle 只在进程启动时装配；
@@ -101,7 +104,7 @@ window.StockDeskBridge.call('/analyze', { method: 'POST', body: '{"query":"60051
 
 ## 依赖
 
-后端依赖装在 `E:\stock_analyzer\.venv`（Python 3.12）：`flask pandas baostock`。
+后端依赖装在 `F:\dsh项目\stock_analyzer\.venv`（Python 3.12）：`flask pandas baostock`。
 虚拟环境没了的话 Host 半会回退到系统 `python`，通常缺 pandas 而启动失败——错误页会把
 `backend.log` 末尾贴出来。
 
@@ -110,7 +113,7 @@ window.StockDeskBridge.call('/analyze', { method: 'POST', body: '{"query":"60051
 `cordis.patch.yml`：
 
 ```yaml
-root: E:/stock_analyzer   # 项目根（web_app.py / templates / data）
+root: F:/dsh项目/stock_analyzer   # 项目根（web_app.py / templates / data）
 path: /stock              # Harness Web 服务器上的挂载点
 port: 5117                # 本地 Flask 端口
 ```
@@ -122,7 +125,7 @@ port: 5117                # 本地 Flask 端口
 
 ```powershell
 # 后端单独跑通
-cd E:\stock_analyzer
+cd F:\dsh项目\stock_analyzer
 $env:PORT=5117; .\.venv\Scripts\pythonw.exe web_app.py
 # 另开一个窗口
 Invoke-RestMethod http://127.0.0.1:5117/api/ping     # {"status":"ok"}

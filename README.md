@@ -79,7 +79,7 @@ set PORT=5000 && .venv\Scripts\python web_app.py    # Windows
 | GET/POST | `/api/watchlist` | 自选列表 / 添加（`{code}` 或 `{text}` 批量） |
 | DELETE | `/api/watchlist/<code>` | 删除自选 |
 | POST | `/api/position` | 直接建仓 `{query, shares, cost}`（代码或名称，自动补进自选） |
-| PUT | `/api/position/<code>` | 设置持仓 `{shares, cost}` |
+| PUT | `/api/position/<code>` | 设置持仓 `{shares, cost}`；`shares=0` 即清仓（负数/只填股数不填成本会 400） |
 | GET/PUT | `/api/account` | 读 / 设账户总资金 `{capital}` |
 | GET/POST | `/api/backups` | 列持仓快照 / 回滚到某一份 `{name}` |
 | GET | `/api/portfolio` | 持仓全景 + 组合建议 + 明日预案（价格用实时报价，指标用 30 分钟日线缓存） |

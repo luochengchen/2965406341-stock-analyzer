@@ -115,6 +115,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .stock-row .actions button{background:none;border:1px solid #30363d;color:#8b949e;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer}
 .stock-row .actions button:active{background:#21262d}
 .stock-row .actions .btn-del{color:#f85149;border-color:#f8514933}
+.stock-row .actions .btn-del.armed{background:#f8514926;border-color:#f85149;color:#f85149;font-weight:700}
+.btn-del2.armed,.btn-clear.armed{background:#f8514926!important;border-color:#f85149!important;color:#f85149!important;font-weight:700}
+
+/* 就地提示条（替代 alert）：底部居中，2.4s / 错误 4.2s 自动消失 */
+#toast{position:fixed;left:50%;bottom:22px;z-index:99;max-width:min(560px,90vw);
+  padding:9px 14px;border-radius:8px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;
+  background:#1f6feb;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transform:translateX(-50%) translateY(8px);
+  transition:opacity .16s ease,transform .16s ease}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{background:#b62324}
 
 /* Batch button */
 .batch-btn{width:100%;background:#238636;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px}
@@ -159,27 +170,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .plan-head .pt{font-size:13px;font-weight:700}
 .plan-lv{font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;background:#21262d;color:#8b949e}
 .plan-line{font-size:11.5px;color:#8b949e;line-height:1.7}
-.plan-item{border-left:2px solid #30363d;padding:5px 0 5px 9px;margin-top:9px}
+/* 建议条目两列铺开：整宽一行一条太浪费横向空间 */
+.plan-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;margin-top:9px}
+@media (max-width:900px){.plan-items{grid-template-columns:1fr}}
+.plan-item{border-left:2px solid #30363d;padding:5px 0 5px 9px;margin-top:0;min-width:0}
 .plan-item .pi-t{font-size:12px;font-weight:700}
 .plan-item .pi-d{font-size:11.5px;color:#8b949e;line-height:1.65;margin-top:2px}
 .lv-danger{border-left-color:#f85149} .lv-danger .pi-t{color:#f85149}
 .lv-warn{border-left-color:#d2991d} .lv-warn .pi-t{color:#d2991d}
 .lv-action{border-left-color:#1f6feb} .lv-action .pi-t{color:#1f6feb}
 
-.hold{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:11px 12px;margin-bottom:8px}
-.hold-l1{display:flex;justify-content:space-between;align-items:baseline}
-.hold-name{font-size:14.5px;font-weight:700}
-.hold-pnl{text-align:right;flex-shrink:0}
-.hold-pnl b{font-size:14px}
-.hold-pnl span{display:block;font-size:11px}
-.hold-l2{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#8b949e;margin-top:6px}
-.hold-l2 b{color:#c9d1d9;font-weight:600}
-.hold-sug{margin-top:9px;background:#21262d;border-radius:8px;padding:8px 10px;font-size:11.5px;line-height:1.6}
+/* 持仓卡：三列网格，卡片内部 flex 列，底部按钮钉住 */
+.hold{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px 12px;
+  display:flex;flex-direction:column;gap:7px;min-width:0;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.hold-l1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.hold-id{min-width:0;line-height:1.25}
+.hold-name{font-size:14px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hold-pnl{text-align:right;flex-shrink:0;line-height:1.15;white-space:nowrap}
+.hold-pnl b{font-size:15px}
+.hold-pnl span{display:block;font-size:11px;font-weight:700;margin-top:1px}
+.hold-sug{background:#21262d;border-radius:8px;padding:7px 9px;font-size:11px;line-height:1.55}
 .hold-sug .sl{display:flex;justify-content:space-between;align-items:center;gap:6px}
-.hold-sug .txt{color:#c9d1d9;margin-top:4px}
-.hold-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
-.hold-foot button{background:none;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer}
+.hold-sug .txt{color:#c9d1d9;margin-top:3px}
+.hold-foot{display:flex;justify-content:flex-end;gap:6px;margin-top:auto;padding-top:2px}
+.hold-foot button{background:none;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:2px 9px;font-size:10.5px;cursor:pointer}
 .hold-foot button:active{background:#21262d}
+.hold-foot .btn-clear{color:#d2991d;border-color:#d2991d55}
+.modal-btns .btn-clear,.modal-btns .btn-del2{flex:0 1 auto;padding:8px 12px;font-size:12px;background:none;border:1px solid #30363d;color:#8b949e}
+.modal-btns .btn-clear{color:#d2991d;border-color:#d2991d55}
+.modal-btns .btn-del2{color:#f85149;border-color:#f8514933}
 .head-acts{display:flex;align-items:center;flex-shrink:0;white-space:nowrap}
 
 /* ===== 实时盯盘 ===== */
@@ -203,19 +223,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .banner .lv{font-size:10px;padding:1px 6px;border-radius:8px;background:#21262d;color:#8b949e;font-weight:700;flex:0 0 auto}
 
 /* ===== 明日预案 ===== */
-.tmw{margin-top:8px;border-top:1px dashed #30363d;padding-top:8px;font-size:11.5px}
+.tmw{border-top:1px dashed #30363d;padding-top:7px;font-size:11px}
 .tmw-h{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:5px}
-.tmw-h .bias{font-weight:700;font-size:12px}
+.tmw-h .bias{font-weight:700;font-size:11.5px}
 .bias-up{color:#3fb950}
 .bias-down{color:#f85149}
 .bias-flat{color:#d2991d}
-.tmw-h .conf{color:#8b949e;font-size:10.5px}
-.tmw-lv{display:flex;gap:12px;flex-wrap:wrap;color:#8b949e;margin-bottom:4px}
-.tmw-lv b{color:#c9d1d9;font-weight:600}
-.tmw-lv .r{color:#f85149}
-.tmw-lv .s{color:#3fb950}
-.tmw li{color:#c9d1d9;margin:2px 0 2px 14px;line-height:1.55;list-style:disc}
-.tmw .why-s{color:#8b949e;font-size:10.5px;margin-top:3px}
+.tmw-h .conf{color:#8b949e;font-size:10px}
+.tmw li{color:#c9d1d9;margin:2px 0 0 14px;line-height:1.5;list-style:disc;font-size:10.5px}
+.tmw .why-s{color:#8b949e;font-size:10px;margin-top:3px;line-height:1.45}
 
 /* Inline add form */
 .inline-form{display:flex;gap:6px;margin-bottom:10px}
@@ -234,39 +250,73 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .rec-group .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
 .pill-steady{background:#23863626;color:#3fb950;border:1px solid #23863655}
 .pill-bold{background:#d2991d26;color:#d2991d;border:1px solid #d2991d55}
-.rec{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:8px}
-.rec-head{display:flex;justify-content:space-between;align-items:baseline}
-.rec-name{font-size:15px;font-weight:700}
-.rec-code{font-size:11px;color:#8b949e;margin-left:6px}
-.rec-price b{font-size:16px}
-.rec-price span{font-size:12px;margin-left:6px;font-weight:600}
-.rec-tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
-.rec-tags .tag{font-size:10px;color:#8b949e;background:#21262d;border-radius:8px;padding:2px 7px}
-.rec-reasons{list-style:none;margin:4px 0}
-.rec-reasons li{font-size:11.5px;color:#c9d1d9;line-height:1.65;padding-left:10px;position:relative}
+/* 推荐卡片：宽屏一行 3 张，窄屏 2 张 / 1 张。数字统一等宽 + 右对齐，方便竖向对比 */
+.rec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:4px}
+@media (max-width:1180px){.rec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.rec-grid{grid-template-columns:1fr}}
+/* 通用卡片网格（持仓卡 / 策略卡）：宽屏 3 列，1180px→2 列，720px→1 列 */
+.grid-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:4px}
+@media (max-width:1180px){.grid-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.grid-cards{grid-template-columns:1fr}}
+/* 自选列表：同一套列数，行距更紧 */
+.wl-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:1180px){.wl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.wl-grid{grid-template-columns:1fr}}
+.wl-grid .stock-row{margin-bottom:0}
+.rec{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px 12px;
+  display:flex;flex-direction:column;gap:7px;min-width:0;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.rec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.rec-id{min-width:0;line-height:1.25}
+.rec-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.rec-code{font-size:10.5px;color:#8b949e}
+.rec-price{text-align:right;line-height:1.15;white-space:nowrap}
+.rec-price b{font-size:17px}
+.rec-price span{display:block;font-size:11px;font-weight:700;margin-top:1px}
+/* 6 个快照指标：3 列 × 2 行，标签灰、数值亮，右边缘对齐（.stat-grid 是持仓/策略卡复用的同款） */
+.rec-metrics,.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 10px}
+.rec-metrics .m,.stat-grid .m{display:flex;align-items:baseline;justify-content:space-between;gap:4px;min-width:0;font-size:10px;color:#8b949e}
+.rec-metrics .m span,.stat-grid .m span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-metrics .m b,.stat-grid .m b{font-size:11px;font-weight:700;color:#c9d1d9}
+/* 评分：数值 + 10 分制细条 */
+.rec-score{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#8b949e}
+.rec-score .sc{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.rec-score .sc b{font-size:13px;color:#c9d1d9}
+.rec-score .meter{flex:1;height:3px;background:#21262d;border-radius:2px;overflow:hidden;min-width:24px}
+.rec-score .meter i{display:block;height:100%;background:#1f6feb;border-radius:2px}
+.rec-score .sl{margin-left:auto;white-space:nowrap}
+.rec-reasons{list-style:none;margin:0;display:flex;flex-direction:column;gap:1px}
+.rec-reasons li{font-size:11px;color:#c9d1d9;line-height:1.5;padding-left:9px;position:relative}
 .rec-reasons li:before{content:"·";position:absolute;left:0;color:#8b949e}
-.rec-levels{display:flex;gap:8px;margin-top:8px}
-.rec-levels div{flex:1;background:#21262d;border-radius:8px;padding:7px 6px;text-align:center}
-.rec-levels span{display:block;font-size:10px;color:#8b949e}
-.rec-levels b{font-size:13px}
-.rec-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:#8b949e}
-.rec-foot button{background:none;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer}
+/* 三价位：标签在上、数字居中、距现价在下（.lv-grid 是持仓/策略卡复用的同款） */
+.rec-plan,.lv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rec-plan div,.lv-grid div{background:#21262d;border-radius:7px;padding:5px 4px;text-align:center;line-height:1.25;min-width:0}
+.rec-plan span,.lv-grid span{display:block;font-size:9.5px;color:#8b949e}
+.rec-plan b,.lv-grid b{display:block;font-size:13px;font-weight:700}
+.rec-plan em,.lv-grid em{display:block;font-style:normal;font-size:9.5px;color:#8b949e}
+.rec-foot{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:auto;padding-top:2px;font-size:10.5px;color:#8b949e}
+.rec-foot button{background:none;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:2px 8px;font-size:10.5px;cursor:pointer}
 .rec-foot button:active{background:#21262d}
-.risk-note{font-size:11px;color:#d2991d;margin-top:6px}
+.risk-note{font-size:10.5px;color:#d2991d;line-height:1.45}
 
-.st{background:#161b22;border:1px solid #30363d;border-radius:9px;padding:10px 12px;margin-bottom:6px}
-.st-l1{display:flex;align-items:baseline;gap:6px;justify-content:space-between}
+/* 自选策略卡：三列网格里的紧凑卡 */
+.st{background:#161b22;border:1px solid #30363d;border-radius:9px;padding:10px 12px;
+  display:flex;flex-direction:column;gap:6px;min-width:0;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.st-l1{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.st-id{min-width:0;line-height:1.3}
 .st-name{font-size:14px;font-weight:700}
-.st-code{font-size:11px;color:#8b949e;margin-left:4px}
-.st-price{font-size:13px;font-weight:700;text-align:right}
-.st-price span{font-size:11px;margin-left:5px;font-weight:600}
-.st-act{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.st-code{font-size:10.5px;color:#8b949e;margin-left:5px}
+.st-price{font-size:16px;font-weight:700;text-align:right;line-height:1.15;white-space:nowrap}
+.st-price span{display:block;font-size:11px;margin-top:1px;font-weight:700}
+.st-act{font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px;white-space:nowrap;display:inline-block;vertical-align:1px}
 .act-buy{background:#23863626;color:#3fb950}
 .act-sell{background:#f8514926;color:#f85149}
 .act-cut{background:#d2991d26;color:#d2991d}
 .act-hold{background:#21262d;color:#8b949e}
-.st-l2{font-size:11px;color:#8b949e;margin-top:3px}
-.st-reasons{font-size:11.5px;color:#c9d1d9;line-height:1.6;margin-top:4px}
+.st-l2{font-size:10.5px;color:#8b949e}
+.st-l2 b{color:#c9d1d9;font-weight:600}
+.st-reasons{font-size:11px;color:#c9d1d9;line-height:1.5}
 .st-reasons i{font-style:normal;color:#8b949e}
 .st-levels{font-size:11px;color:#8b949e;margin-top:4px}
 .st-levels b{font-weight:600}
@@ -441,6 +491,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
       <label>持仓成本（元）</label>
       <input type="number" id="modal-cost" placeholder="0.00" min="0" step="0.01">
     </div>
+    <div class="acct-note" style="margin:-2px 0 10px">股数填 0 就是清仓；选错了股票可以「删除自选」直接移出列表。清仓 / 删除都要点两次确认。</div>
+    <div class="modal-btns" id="modal-extra" style="justify-content:flex-start;gap:8px;margin-bottom:10px">
+      <button class="btn-clear" onclick="clearFromModal(this)">清仓（数量归零）</button>
+      <button class="btn-del2" onclick="removeFromModal(this)">删除自选</button>
+    </div>
     <div class="modal-btns">
       <button class="btn-danger" onclick="closeModal()">取消</button>
       <button class="btn-primary" onclick="savePosition()">保存</button>
@@ -485,6 +540,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 const $ = id => document.getElementById(id);
 let currentTab = 'home';
 let modalCode = '';
+let modalName = '';
 let STRAT = null;          // 今日策略缓存
 let REC = null;            // 推荐数据缓存（含筛选逻辑）
 let recTimer = null;       // 推荐轮询定时器
@@ -494,6 +550,57 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;
 const cls = v => (v >= 0 ? 'green' : 'red');
 const pstr = v => (v >= 0 ? '+' : '') + Number(v || 0).toFixed(2) + '%';
 const num = (v, d = 2) => (v == null || isNaN(v)) ? '-' : Number(v).toFixed(d);
+// 指标小格：标签灰左、数值亮右（.stat-grid 内一格）
+const mCell = (label, value, c) => `<div class="m"><span>${label}</span><b class="${c || ''}">${value}</b></div>`;
+// 相对现价的百分比，给止损/买入/目标补一句「离多远」
+const gapTo = (price, v) => {
+  const p = Number(price);
+  if (!p || v == null || isNaN(v)) return '';
+  const d = (v / p - 1) * 100;
+  return (d >= 0 ? '+' : '') + d.toFixed(1) + '%';
+};
+
+// ==================== 就地提示 / 就地确认 ====================
+// 这个页面经常被嵌在 DSH 浮动窗的 iframe（或别的 webview）里，原生对话框可能被
+// 静默拦截：confirm() 直接返回 false —— 点了删除什么都不发生；alert() 什么都不显示
+// —— 出错也看不见。所以不可逆操作不用 confirm()，改成「点两次」的就地确认。
+let _toastTimer = null;
+function toast(msg, kind) {
+  let el = $('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+  }
+  el.className = kind === 'bad' ? 'bad' : '';
+  el.textContent = msg;
+  requestAnimationFrame(() => el.classList.add('show'));
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), kind === 'bad' ? 4200 : 2400);
+}
+
+// 第一次点击把按钮变成确定态，4 秒内再点一次才执行；超时或页面重渲染自动还原。
+function armConfirm(btn, label, run) {
+  if (!btn) return;
+  const now = Date.now();
+  if (btn._armedUntil && now < btn._armedUntil) {
+    clearTimeout(btn._armTimer);
+    btn._armedUntil = 0;
+    btn.classList.remove('armed');
+    run();
+    return;
+  }
+  if (btn._label == null) btn._label = btn.textContent;
+  btn.textContent = label;
+  btn.classList.add('armed');
+  btn._armedUntil = now + 4000;
+  clearTimeout(btn._armTimer);
+  btn._armTimer = setTimeout(() => {
+    btn.textContent = btn._label;
+    btn.classList.remove('armed');
+    btn._armedUntil = 0;
+  }, 4000);
+}
 
 function switchTab(tab) {
   currentTab = tab;
@@ -555,18 +662,19 @@ function renderRecommend(data) {
     return;
   }
 
+  const grid = (list, kind) => `<div class="rec-grid">${list.map(x => recCard(x, kind)).join('')}</div>`;
   let html = '';
   html += `<div class="rec-group"><span class="pill pill-steady">稳健</span>低波动 · 趋势向上</div>`;
-  html += steady.length ? steady.map(x => recCard(x, 'steady')).join('')
+  html += steady.length ? grid(steady, 'steady')
                         : '<div class="empty">无符合条件的稳健标的</div>';
   html += `<div class="rec-group"><span class="pill pill-bold">激进</span>短线动能 · 放量突破</div>`;
-  html += bold.length ? bold.map(x => recCard(x, 'bold')).join('')
+  html += bold.length ? grid(bold, 'bold')
                       : '<div class="empty">无符合条件的激进标的</div>';
   $('rec-body').innerHTML = html;
 }
 
 function recCard(x, kind) {
-  const reasons = (x.reasons || []).map(r => `<li>${esc(r)}</li>`).join('');
+  const reasons = (x.reasons || []).slice(0, 3).map(r => `<li>${esc(r)}</li>`).join('');
   const factors = (x.factors || []).map(f => {
     const c = f.points > 0 ? 'green' : f.points < 0 ? 'red' : 'dim';
     const pt = f.points ? (f.points > 0 ? '+' : '') + num(f.points, 1) : '—';
@@ -577,34 +685,50 @@ function recCard(x, kind) {
       <span class="pt ${c}">${pt}</span>
     </div>`;
   }).join('');
+  // 三位价：数字之外再给出「距现价」百分比，省得自己拿计算器
+  const gapStr = v => {
+    const p = Number(x.price);
+    if (!p || v == null || isNaN(v)) return '';
+    const d = (v / p - 1) * 100;
+    return (d >= 0 ? '+' : '') + d.toFixed(1) + '%';
+  };
+  const metric = (label, value, c) =>
+    `<div class="m"><span>${label}</span><b class="${c || ''}">${value}</b></div>`;
+  const scorePct = Math.max(0, Math.min(100, (Number(x.score) || 0) * 10));
+  const subs = [
+    x.short_score != null ? '短线 ' + num(x.short_score, 1) : '',
+    x.long_score != null ? '长线 ' + num(x.long_score, 1) : ''
+  ].filter(Boolean).join(' · ');
   return `<div class="rec">
   <div class="rec-head">
-    <div><span class="rec-name">${esc(x.name)}</span><span class="rec-code">${esc(x.code)}</span></div>
+    <div class="rec-id"><span class="rec-name">${esc(x.name)}</span><span class="rec-code">${esc(x.code)}</span></div>
     <div class="rec-price"><b>${num(x.price)}</b><span class="${cls(x.pct)}">${pstr(x.pct)}</span></div>
   </div>
-  <div class="rec-tags">
-    <span class="tag">评分 ${num(x.score, 1)}</span>
-    <span class="tag">5日 ${pstr(x.chg5)}</span>
-    <span class="tag">20日 ${pstr(x.chg20)}</span>
-    <span class="tag">量比 ${num(x.vol_ratio, 2)}</span>
-    <span class="tag">日波动 ${num(x.atr_pct, 1)}%</span>
-    <span class="tag">成交 ${num(x.amount20, 1)}亿</span>
+  <div class="rec-metrics">
+    ${metric('5日', pstr(x.chg5), cls(x.chg5))}
+    ${metric('20日', pstr(x.chg20), cls(x.chg20))}
+    ${metric('量比', num(x.vol_ratio, 2))}
+    ${metric('波动', num(x.atr_pct, 1) + '%')}
+    ${metric('成交', num(x.amount20, 1) + '亿')}
+    ${metric('RSI', num(x.rsi, 0))}
+  </div>
+  <div class="rec-score">
+    <span class="sc">评分<b>${num(x.score, 1)}</b></span>
+    <span class="meter"><i style="width:${scorePct}%"></i></span>
+    ${subs ? `<span class="sl">${subs}</span>` : ''}
+  </div>
+  <div class="rec-plan">
+    <div><span>买入参考</span><b>${num(x.buy_point)}</b><em>${gapStr(x.buy_point)}</em></div>
+    <div><span>止损</span><b class="red">${num(x.stop_loss)}</b><em class="red">${gapStr(x.stop_loss)}</em></div>
+    <div><span>目标</span><b class="green">${num(x.target)}</b><em class="green">${gapStr(x.target)}</em></div>
   </div>
   ${reasons ? `<ul class="rec-reasons">${reasons}</ul>` : ''}
-  <div class="rec-levels">
-    <div><span>买入参考</span><b>${num(x.buy_point)}</b></div>
-    <div><span>止损</span><b class="red">${num(x.stop_loss)}</b></div>
-    <div><span>目标</span><b class="green">${num(x.target)}</b></div>
-  </div>
+  ${x.risk ? `<div class="risk-note">风险：${esc(x.risk)}</div>` : ''}
   ${factors ? `<div class="why">${factors}</div>` : ''}
   <div class="rec-foot">
-    <span>短线评分 ${x.short_score != null ? x.short_score : '-'}${x.long_score != null ? ' · 长线评分 ' + x.long_score : ''}</span>
-    <span>
-      ${factors ? `<span class="m-toggle" style="margin:0 10px 0 0" onclick="this.closest('.rec').classList.toggle('open')">为什么</span>` : ''}
-      <button onclick="addFromCard('${esc(x.code)}','${esc(x.name)}')">+ 自选</button>
-    </span>
+    <span>${factors ? `<span class="m-toggle" onclick="this.closest('.rec').classList.toggle('open')">为什么</span>` : ''}</span>
+    <button onclick="addFromCard('${esc(x.code)}','${esc(x.name)}')">+ 自选</button>
   </div>
-  ${x.risk ? `<div class="risk-note">风险：${esc(x.risk)}</div>` : ''}
 </div>`;
 }
 
@@ -643,11 +767,12 @@ async function addFromCard(code, name) {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code })
     });
-    const d = await r.json();
-    if (d.error) { alert(d.error); return; }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) { toast(d.error || ('添加失败：HTTP ' + r.status), 'bad'); return; }
+    toast(`已添加 ${d.name || name || code}`);
     await loadWatchlist();
     loadStrategy(true);
-  } catch (e) { alert('网络错误: ' + e.message); }
+  } catch (e) { toast('网络错误: ' + e.message, 'bad'); }
 }
 
 // ==================== 自选股：今日策略 ====================
@@ -681,14 +806,14 @@ function renderStrategy() {
     return;
   }
 
-  let html = items.map(stRow).join('');
+  let html = '<div class="grid-cards">' + items.map(stRow).join('');
   if (bad.length) {
     html += bad.map(x => `<div class="st"><div class="st-l1">
-      <span><span class="st-name">${esc(x.name)}</span><span class="st-code">${esc(x.code)}</span></span>
+      <span class="st-id"><span class="st-name">${esc(x.name)}</span><span class="st-code">${esc(x.code)}</span></span>
       <span class="red" style="font-size:11px">数据获取失败</span></div></div>`).join('');
   }
-  $('home-strategy').innerHTML = html;
-  $('wl-strategy').innerHTML = html;
+  $('home-strategy').innerHTML = html + '</div>';
+  $('wl-strategy').innerHTML = html + '</div>';
 }
 
 function stRow(x) {
@@ -699,22 +824,24 @@ function stRow(x) {
   const m = x.metrics || {}, lv = x.levels || {}, p = x.position || {};
   const reasons = (x.reasons || []).slice(0, 3).map(r => `<div class="st-reasons">· ${esc(r)}</div>`).join('');
   const pnl = p.profit_pct != null
-    ? `<span class="${cls(p.profit_pct)}">持仓 ${p.shares}股 · 成本 ${num(p.cost)} · ${pstr(p.profit_pct)}</span>`
+    ? `<div class="st-l2">持仓 <b>${p.shares}</b> 股 · 成本 <b>${num(p.cost)}</b> ·
+        <span class="${cls(p.profit_pct)}">${pstr(p.profit_pct)}</span></div>`
     : '';
-  const lvTxt = [
-    lv.stop ? `止损 <b class="red">${num(lv.stop)}</b>` : '',
-    lv.buy ? `买入 <b>${num(lv.buy)}</b>` : '',
-    lv.target ? `目标 <b class="green">${num(lv.target)}</b>` : ''
-  ].filter(Boolean).join(' · ');
+  const lvCell = (label, v, c) => v
+    ? `<div><span>${label}</span><b class="${c}">${num(v)}</b><em>${gapTo(x.price, v)}</em></div>`
+    : `<div><span>${label}</span><b class="dim">—</b><em></em></div>`;
+  const hasLv = lv.stop || lv.buy || lv.target;
 
   return `<div class="st">
   <div class="st-l1">
-    <span><span class="st-name">${esc(x.name)}</span><span class="st-code">${esc(x.code)}</span></span>
-    <span class="st-price">${num(x.price)}<span class="${cls(m.pct)}">${pstr(m.pct)}</span></span>
+    <div class="st-id"><span class="st-name">${esc(x.name)}</span><span class="st-code">${esc(x.code)}</span>
+      <span class="st-act ${actCls}">${esc(act)}</span></div>
+    <div class="st-price">${num(x.price)}<span class="${cls(m.pct)}">${pstr(m.pct)}</span></div>
   </div>
-  <div class="st-l2">${lvTxt || '—'}${pnl ? ' &nbsp;|&nbsp; ' + pnl : ''}
-    <span class="st-act ${actCls}" style="float:right">${esc(act)}</span>
-  </div>
+  ${hasLv ? `<div class="lv-grid">
+    ${lvCell('止损', lv.stop, 'red')}${lvCell('买入', lv.buy, '')}${lvCell('目标', lv.target, 'green')}
+  </div>` : ''}
+  ${pnl}
   ${reasons}
   ${mastersChips(x.masters)}
 </div>`;
@@ -879,21 +1006,20 @@ async function loadWatchlist() {
       $('wl-list').innerHTML = '<div class="empty">自选股列表为空<br>在上方输入代码或名称添加</div>';
       return;
     }
-    let html = '';
+    let html = '<div class="wl-grid">';
     stocks.forEach(s => {
       html += `<div class="stock-row">
         <div class="info">
           <div class="name">${esc(s.name || s.code)}</div>
-          <div class="code">${esc(s.code)}</div>
-          ${s.has_position ? `<div class="pos">持仓 ${s.shares}股 / 成本 ${s.cost.toFixed(2)}</div>` : ''}
+          <div class="code">${esc(s.code)}${s.has_position ? ` · <span class="pos">持仓 ${s.shares} 股 / 成本 ${Number(s.cost).toFixed(2)}</span>` : ''}</div>
         </div>
         <div class="actions">
           <button onclick="openModal('${esc(s.code)}','${esc(s.name || s.code)}',${s.shares || 0},${s.cost || 0})">${s.has_position ? '改持仓' : '+持仓'}</button>
-          <button class="btn-del" onclick="delWatchlist('${esc(s.code)}')">×</button>
+          <button class="btn-del" onclick="delWatchlist('${esc(s.code)}', this)">×</button>
         </div>
       </div>`;
     });
-    $('wl-list').innerHTML = html;
+    $('wl-list').innerHTML = html + '</div>';
   } catch (e) {
     $('wl-list').innerHTML = `<div class="error">加载失败: ${esc(e.message)}</div>`;
   }
@@ -901,45 +1027,65 @@ async function loadWatchlist() {
 
 async function addWatchlist() {
   const code = $('add-code').value.trim();
-  if (!code) { alert('请输入代码或名称'); return; }
+  if (!code) { toast('请输入代码或名称', 'bad'); return; }
   try {
     const r = await fetch("/api/watchlist", {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code })
     });
-    const d = await r.json();
-    if (d.error) { alert(d.error); return; }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) { toast(d.error || ('添加失败：HTTP ' + r.status), 'bad'); return; }
     $('add-code').value = '';
+    toast(`已添加 ${d.name || code}`);
     await loadWatchlist();
     loadStrategy(true);
-  } catch (e) { alert('网络错误: ' + e.message); }
+  } catch (e) { toast('网络错误: ' + e.message, 'bad'); }
 }
 
 async function batchAddWatchlist() {
   const text = $('add-batch').value.trim();
-  if (!text) { alert('请粘贴代码或名称'); return; }
+  if (!text) { toast('请粘贴代码或名称', 'bad'); return; }
   try {
     const r = await fetch("/api/watchlist", {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
     });
-    const d = await r.json();
-    if (d.error) { alert(d.error); return; }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) { toast(d.error || ('导入失败：HTTP ' + r.status), 'bad'); return; }
     $('add-batch').value = '';
     let msg = `成功导入 ${d.added} 只`;
     if (d.skipped) msg += `，跳过已存在 ${d.skipped} 只`;
     if (d.failed && d.failed.length) msg += `\n无法识别: ${d.failed.join(', ')}`;
-    alert(msg);
+    toast(msg, (d.failed && d.failed.length) ? 'bad' : '');
     await loadWatchlist();
     loadStrategy(true);
-  } catch (e) { alert('网络错误: ' + e.message); }
+  } catch (e) { toast('网络错误: ' + e.message, 'bad'); }
 }
 
-async function delWatchlist(code) {
-  if (!confirm(`确认删除 ${code}？`)) return;
-  await fetch("/api/watchlist/" + code, { method: 'DELETE' });
-  await loadWatchlist();
-  loadStrategy(true);
+// 删除自选：第一次点把按钮变成「确定删除?」，4 秒内再点一次才真正删除。
+// 不用原生 confirm() —— 嵌在 iframe/webview 里会被静默拦截，点了没反应。
+async function delWatchlist(code, btn) {
+  armConfirm(btn, '确定删除?', async () => {
+    btn.disabled = true;
+    btn.textContent = '…';
+    try {
+      const r = await fetch("/api/watchlist/" + encodeURIComponent(code), { method: 'DELETE' });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        toast(`删除 ${code} 失败：${d.error || ('HTTP ' + r.status)}`, 'bad');
+        btn.disabled = false;
+        btn.textContent = '×';
+        return;
+      }
+      toast(`已删除 ${code}`);
+      await loadWatchlist();
+      loadStrategy(true);
+    } catch (e) {
+      toast('网络错误: ' + e.message, 'bad');
+      btn.disabled = false;
+      btn.textContent = '×';
+    }
+  });
 }
 
 // ==================== 持仓 / 账户 ====================
@@ -1024,12 +1170,16 @@ function renderPlan(o) {
       </div>
     </div>`;
   (o.lines || []).forEach(l => { html += `<div class="plan-line">${esc(l)}</div>`; });
-  (o.suggestions || []).forEach(s => {
-    html += `<div class="plan-item lv-${esc(s.level || 'info')}">
+  if ((o.suggestions || []).length) {
+    html += '<div class="plan-items">';
+    o.suggestions.forEach(s => {
+      html += `<div class="plan-item lv-${esc(s.level || 'info')}">
       <div class="pi-t">${esc(s.title)}</div>
       <div class="pi-d">${esc(s.detail)}</div>
     </div>`;
-  });
+    });
+    html += '</div>';
+  }
   $('pos-plan').innerHTML = html + '</div>';
 }
 
@@ -1045,7 +1195,7 @@ function renderHoldings(list) {
     $('pos-list').innerHTML = '<div class="empty">还没有持仓<br><span class="dim" style="font-size:11px">点右上角「+ 建仓」输入代码、股数、成本</span></div>';
     return;
   }
-  let html = '';
+  let html = '<div class="grid-cards">';
   list.forEach(h => {
     const s = h.suggest || {};
     const t = h.tomorrow || null;
@@ -1059,24 +1209,27 @@ function renderHoldings(list) {
       : s.kind === 'clear' ? 'act-sell'
       : s.kind === 'sell' ? 'act-cut'
       : actCls(s.adjust || h.action);
+    const stop = h.stop || (s.levels && s.levels.stop);
     html += `<div class="hold">
       <div class="hold-l1">
-        <div><span class="hold-name">${esc(h.name)}</span><span class="mini-code">${esc(h.code)}</span></div>
+        <div class="hold-id"><span class="hold-name">${esc(h.name)}</span><span class="rec-code">${esc(h.code)}</span></div>
         <div class="hold-pnl">
           <b class="${signCls(h.profit)}">${signed(h.profit)}</b>
           <span class="${signCls(h.profit)}">${h.profit_pct >= 0 ? '+' : ''}${h.profit_pct.toFixed(2)}%</span>
         </div>
       </div>
-      <div class="hold-l2">
-        <span>${h.shares} 股 × 成本 <b>${p(h.cost)}</b></span>
-        <span>现价 <b>${p(h.price)}</b></span>
-        <span>市值 <b>${money(h.market_value)}</b></span>
-        <span>占总资产 <b>${h.weight.toFixed(1)}%</b></span>
+      <div class="stat-grid">
+        ${mCell('持股', h.shares + ' 股')}
+        ${mCell('成本', p(h.cost))}
+        ${mCell('现价', p(h.price))}
+        ${mCell('市值', money(h.market_value))}
+        ${mCell('占比', h.weight.toFixed(1) + '%')}
+        ${mCell('止损', stop ? p(stop) : '—', stop ? 'red' : '')}
       </div>
       <div class="hold-sug">
         <div class="sl">
           <span class="st-act ${badgeCls}">${esc(label)}${h.urgency === '高' ? ' · 急' : ''}</span>
-          <span class="dim" style="font-size:10.5px">目标 ${s.target_weight}%${h.stop ? ' · 止损 ' + p(h.stop) : ''}</span>
+          <span class="dim" style="font-size:10px">目标 ${s.target_weight}%</span>
         </div>
         <div class="txt">${esc(s.text || '')}</div>
       </div>
@@ -1084,10 +1237,11 @@ function renderHoldings(list) {
       ${mastersChips(h.masters)}
       <div class="hold-foot">
         <button onclick="openModal('${esc(h.code)}','${esc(h.name)}',${h.shares},${h.cost})">编辑持仓</button>
+        <button class="btn-clear" onclick="clearPosition('${esc(h.code)}','${esc(h.name)}', this)">清仓</button>
       </div>
     </div>`;
   });
-  $('pos-list').innerHTML = html;
+  $('pos-list').innerHTML = html + '</div>';
 }
 
 function tomorrowBlock(t, p) {
@@ -1098,10 +1252,10 @@ function tomorrowBlock(t, p) {
       <span class="bias ${biasCls}">明日${esc(t.bias)} · ${esc(t.action)}</span>
       <span class="conf">置信度 ${t.confidence}%</span>
     </div>
-    <div class="tmw-lv">
-      <span class="s">支撑 <b>${p(lv.support)}</b></span>
-      <span class="r">阻力 <b>${p(lv.resistance)}</b></span>
-      <span>回踩买区 <b>${p(lv.buy_low)}~${p(lv.buy_high)}</b></span>
+    <div class="lv-grid">
+      <div><span>支撑</span><b class="green">${p(lv.support)}</b></div>
+      <div><span>阻力</span><b class="red">${p(lv.resistance)}</b></div>
+      <div><span>回踩买区</span><b>${p(lv.buy_low)}~${p(lv.buy_high)}</b></div>
     </div>
     <ul>${(t.plan || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
   if ((t.reasons || []).length) {
@@ -1206,8 +1360,10 @@ function renderAlerts(items) {
 function openModal(code, name, shares = 0, cost = 0) {
   modalMode = 'edit';
   modalCode = code;
+  modalName = name;
   $('modal-title').textContent = name + ' ' + code;
   $('modal-code-field').style.display = 'none';
+  $('modal-extra').style.display = 'flex';
   $('modal-shares').value = shares || '';
   $('modal-cost').value = cost || '';
   $('pos-modal').classList.add('show');
@@ -1218,6 +1374,7 @@ function openCreateModal() {
   modalCode = '';
   $('modal-title').textContent = '新建持仓';
   $('modal-code-field').style.display = 'block';
+  $('modal-extra').style.display = 'none';   // 新建时还没有持仓，谈不上清仓/删除
   $('modal-code-input').value = '';
   $('modal-shares').value = '';
   $('modal-cost').value = '';
@@ -1227,34 +1384,102 @@ function openCreateModal() {
 function closeModal() {
   $('pos-modal').classList.remove('show');
   modalCode = '';
+  modalName = '';
+}
+
+function afterPositionChange() {
+  closeModal();
+  loadWatchlist();
+  loadPositions();
+  loadStrategy(true);
+}
+
+// 清仓：把持仓从这只票上摘掉，保留在自选里继续观察
+// 从按钮进来走「点两次」确认；从弹窗保存（数量填 0）进来时本身就是明确操作，直接执行。
+async function clearPosition(code, name, btn) {
+  const run = async () => {
+    if (btn) btn.disabled = true;
+    try {
+      const r = await fetch("/api/position/" + encodeURIComponent(code), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shares: 0, cost: 0 })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || d.error) {
+        toast(`清仓 ${name || code} 失败：${d.error || ('HTTP ' + r.status)}`, 'bad');
+        if (btn) btn.disabled = false;
+        return;
+      }
+      toast(`已清仓 ${name || code}，已保留在自选`);
+      if ($('pos-modal').classList.contains('show')) afterPositionChange();
+      else { loadWatchlist(); loadPositions(); loadStrategy(true); }
+    } catch (e) {
+      toast('网络错误: ' + e.message, 'bad');
+      if (btn) btn.disabled = false;
+    }
+  };
+  if (btn) armConfirm(btn, '确定清仓?', run);
+  else await run();
+}
+
+function clearFromModal(btn) {
+  if (modalMode !== 'edit' || !modalCode) return;
+  clearPosition(modalCode, modalName, btn);
+}
+
+// 连股票一起从自选里删掉（选错了代码时用）
+async function removeFromModal(btn) {
+  if (modalMode !== 'edit' || !modalCode) return;
+  armConfirm(btn, '再点一次确认删除', async () => {
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    try {
+      const r = await fetch("/api/watchlist/" + encodeURIComponent(modalCode), { method: 'DELETE' });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || d.error) {
+        toast(`删除失败：${d.error || ('HTTP ' + r.status)}`, 'bad');
+        if (btn) { btn.disabled = false; btn.textContent = btn._label || '删除自选'; }
+        return;
+      }
+      toast(`已从自选删除 ${modalName || modalCode}`);
+      afterPositionChange();
+    } catch (e) {
+      toast('网络错误: ' + e.message, 'bad');
+      if (btn) { btn.disabled = false; btn.textContent = btn._label || '删除自选'; }
+    }
+  });
 }
 
 async function savePosition() {
-  const shares = parseInt($('modal-shares').value) || 0;
+  const shares = parseInt($('modal-shares').value, 10) || 0;
   const cost = parseFloat($('modal-cost').value) || 0;
-  if (shares <= 0 || cost <= 0) { alert('股数和成本必须大于 0'); return; }
+  if (shares < 0 || cost < 0) { toast('股数和成本不能为负数', 'bad'); return; }
+  if (shares === 0) {
+    // 数量 0 = 清仓；新建时没有可清的持仓，直接拦住
+    if (modalMode === 'create') { toast('新建持仓至少要 1 股', 'bad'); return; }
+    clearFromModal();
+    return;
+  }
+  if (cost <= 0) { toast('请填持仓成本（清仓请把数量填 0）', 'bad'); return; }
   try {
     let r;
     if (modalMode === 'create') {
       const query = $('modal-code-input').value.trim();
-      if (!query) { alert('请输入股票代码或名称'); return; }
+      if (!query) { toast('请输入股票代码或名称', 'bad'); return; }
       r = await fetch("/api/position", {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, shares, cost })
       });
     } else {
-      r = await fetch("/api/position/" + modalCode, {
+      r = await fetch("/api/position/" + encodeURIComponent(modalCode), {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shares, cost })
       });
     }
-    const d = await r.json();
-    if (d.error) { alert(d.error); return; }
-    closeModal();
-    loadWatchlist();
-    loadPositions();
-    loadStrategy(true);
-  } catch (e) { alert('网络错误: ' + e.message); }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) { toast(d.error || ('保存失败：HTTP ' + r.status), 'bad'); return; }
+    toast('持仓已保存');
+    afterPositionChange();
+  } catch (e) { toast('网络错误: ' + e.message, 'bad'); }
 }
 
 // ==================== 总资金 ====================
@@ -1269,17 +1494,17 @@ function closeCapitalModal() {
 
 async function saveCapital() {
   const v = parseFloat($('cap-input').value);
-  if (!(v > 0)) { alert('请输入大于 0 的总资金'); return; }
+  if (!(v > 0)) { toast('请输入大于 0 的总资金', 'bad'); return; }
   try {
     const r = await fetch("/api/account", {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ capital: v })
     });
-    const d = await r.json();
-    if (d.error) { alert(d.error); return; }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) { toast(d.error || ('保存失败：HTTP ' + r.status), 'bad'); return; }
     closeCapitalModal();
     loadPositions();
-  } catch (e) { alert('网络错误: ' + e.message); }
+  } catch (e) { toast('网络错误: ' + e.message, 'bad'); }
 }
 
 // ==================== 持仓快照（误删/误改的回滚入口） ====================
@@ -1305,24 +1530,34 @@ function renderBackups(list) {
   $('bak-list').innerHTML = list.map(b => `<div class="bak-row">
       <div class="bak-t">${esc(b.time)}</div>
       <div class="bak-d">${b.positions} 只持仓 / ${b.stocks} 只自选 · 总资金 ${money(b.capital)}</div>
-      <button onclick="restoreBackup('${esc(b.name)}','${esc(b.time)}')">恢复</button>
+      <button onclick="restoreBackup('${esc(b.name)}','${esc(b.time)}', this)">恢复</button>
     </div>`).join('');
 }
 
-async function restoreBackup(name, time) {
-  if (!confirm(`恢复到 ${time} 的快照？\n当前数据会先自动备份一份。`)) return;
-  try {
-    const r = await fetch("/api/backups", {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
-    });
-    const d = await r.json();
-    if (d.error) { alert(d.error); return; }
-    closeBackups();
-    await loadWatchlist();
-    await loadPositions();
-    loadStrategy(true);
-  } catch (e) { alert('网络错误: ' + e.message); }
+async function restoreBackup(name, time, btn) {
+  armConfirm(btn, '确定恢复?', async () => {
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    try {
+      const r = await fetch("/api/backups", {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || d.error) {
+        toast(`恢复失败：${d.error || ('HTTP ' + r.status)}`, 'bad');
+        if (btn) { btn.disabled = false; btn.textContent = btn._label || '恢复'; }
+        return;
+      }
+      toast(`已恢复到 ${time} 的快照`);
+      closeBackups();
+      await loadWatchlist();
+      await loadPositions();
+      loadStrategy(true);
+    } catch (e) {
+      toast('网络错误: ' + e.message, 'bad');
+      if (btn) { btn.disabled = false; btn.textContent = btn._label || '恢复'; }
+    }
+  });
 }
 
 // ==================== Helpers ====================

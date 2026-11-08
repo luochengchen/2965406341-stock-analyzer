@@ -9,7 +9,7 @@ const ctx = {
   effect: (fn) => fn(),
 };
 
-apply(ctx, { root: 'E:/stock_analyzer', path: '/stock', port: 5117 });
+apply(ctx, { root: 'F:/dsh项目/stock_analyzer', path: '/stock', port: 5117 });
 if (!route) throw new Error('没注册路由');
 
 const server = http.createServer((req, res) => route.handler(req, res));

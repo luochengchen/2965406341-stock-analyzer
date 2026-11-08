@@ -253,16 +253,25 @@ def api_watchlist_delete(code):
 
 @app.route("/api/position/<code>", methods=["PUT"])
 def api_position_set(code):
-    data = request.get_json()
-    shares = int(data.get("shares", 0))
-    cost = float(data.get("cost", 0))
+    """改持仓或清仓。股数 0（或不传）＝清仓，负数视为输入错误。"""
+    data = request.get_json(silent=True) or {}
+    try:
+        shares = int(data.get("shares") or 0)
+        cost = float(data.get("cost") or 0)
+    except (TypeError, ValueError):
+        return jsonify({"error": "股数和成本必须是数字"}), 400
+    if shares < 0 or cost < 0:
+        return jsonify({"error": "股数和成本不能为负数"}), 400
+    if shares > 0 and cost <= 0:
+        return jsonify({"error": "填了持股数量就要填持仓成本（清仓请把数量填 0）"}), 400
 
     from portfolio import set_position
     ok = set_position(code, shares, cost)
     if not ok:
         return jsonify({"error": "请先将该股票加入自选"}), 404
 
-    return jsonify({"ok": True, "code": norm_code(code), "shares": shares, "cost": cost})
+    return jsonify({"ok": True, "code": norm_code(code), "shares": shares,
+                    "cost": cost, "cleared": shares <= 0})
 
 
 @app.route("/api/position", methods=["POST"])

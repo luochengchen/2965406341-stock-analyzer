@@ -22,7 +22,7 @@ export const inject = ['webServer'];
 
 const DEFAULTS = {
   /** 项目根目录：web_app.py / templates / watchlist.json 都在这里。 */
-  root: 'E:/stock_analyzer',
+  root: 'F:/dsh项目/stock_analyzer',
   /** Harness Web 服务器上的挂载点。 */
   path: '/stock',
   /** Flask 端口。改这里要同时改 config（cordis.patch.yml）。 */
@@ -44,6 +44,59 @@ export function apply(ctx, config) {
   const routePath = cfg.path.replace(/\/+$/, '');
   const port = Number(cfg.port);
   const base = `http://127.0.0.1:${port}`;
+
+  // ---------------------------------------------------------------- 系统浏览器
+
+  /**
+   * 用系统的 URL 关联打开一个地址（等价于在资源管理器里双击网址）。
+   *
+   * 为什么不走 Electron 的 `shell.openExternal`：那条路只有桌面端主进程有，
+   * 而 Web UI 跑在 webview 里，`window.open` 会落到 app.asar `lib/main.js` 的
+   * `DesktopBrowserGuests.allowedNavigation()`——同 hostUrl 端口 + 127.0.0.1
+   * 被判成「往应用自身导航」，一律 deny，点了既不弹窗也不报错。Host 半是独立
+   * 的 Node 进程，直接拉起系统 URL 处理器最稳。
+   */
+  function openInSystemBrowser(url) {
+    const [cmd, args] = process.platform === 'win32'
+      ? ['rundll32.exe', ['url.dll,FileProtocolHandler', url]]
+      : process.platform === 'darwin'
+        ? ['open', [url]]
+        : ['xdg-open', [url]];
+    const child = spawn(cmd, args, { windowsHide: true, detached: true, stdio: 'ignore' });
+    // 系统里没有关联程序时 spawn 报 ENOENT，别让它变成未捕获异常。
+    child.on('error', () => {});
+    child.unref();
+    return cmd;
+  }
+
+  /** `POST ${routePath}/api/open`：请系统默认浏览器打开本入口。 */
+  function handleOpenRequest(req, res) {
+    const pathOnly = String(req.url || '/').split('?')[0];
+    if (pathOnly !== `${routePath}/api/open`) return false;
+
+    const send = (code, body) => {
+      res.statusCode = code;
+      res.setHeader('content-type', 'application/json; charset=utf-8');
+      res.end(JSON.stringify(body));
+    };
+    if (req.method !== 'POST') {
+      send(405, { ok: false, error: 'use POST' });
+      return true;
+    }
+    // 只认 host[:port] 形态：这个口子只能打开自己的页面，不能当任意跳板。
+    const host = String(req.headers.host || '');
+    if (!/^[A-Za-z0-9.-]+(:\d{1,5})?$/.test(host)) {
+      send(400, { ok: false, error: 'bad host' });
+      return true;
+    }
+    const url = `http://${host}${routePath}/`;
+    try {
+      send(200, { ok: true, url, via: openInSystemBrowser(url) });
+    } catch (error) {
+      send(500, { ok: false, error: error && error.message ? error.message : String(error) });
+    }
+    return true;
+  }
 
   // ---------------------------------------------------------------- 进程管理
 
@@ -330,6 +383,10 @@ export function apply(ctx, config) {
     kind: 'prefix',
     path: routePath,
     async handler(req, res) {
+      // 「浏览器打开」入口：交给系统 URL 处理器，既不依赖后端，也不该被后端的
+      // 启动等待拖住，所以放在最前面先拦。
+      if (handleOpenRequest(req, res)) return;
+
       const ready = await ensureBackend(1500);
       if (ready.ok) {
         forward(req, res);

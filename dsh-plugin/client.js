@@ -5,10 +5,11 @@
  *
  * 为什么不是独立浏览器窗口：DSH 桌面端在主窗口上注册了
  *   `setWindowOpenHandler(({ url }) => { ...; return { action: 'deny' } })`
- * （app.asar 内 lib/main.js），渲染进程里任何 window.open 都会被拒绝，
- * 只有绝对 http/https 地址才交给系统默认浏览器。所以「点开就看见」只能把页面
- * 放进 Harness 自己的浮层；标题栏那个「浏览器打开」用绝对 URL，才轮到
- * Electron 的 shell.openExternal 生效。
+ * （app.asar 内 lib/main.js），渲染进程里任何 window.open 都会被拒绝。
+ * 而且 `allowedNavigation(url)` 会把「同 host 端口 + 127.0.0.1」判成往应用自身
+ * 导航，所以连本站的绝对 URL 也等不到 shell.openExternal —— 这正是标题栏
+ * 「浏览器打开」以前点了没反应的原因。现在改走 Host 半的 `/api/open`，由它用
+ * 系统 URL 处理器真正拉起默认浏览器。
  *
  * 几何只由 state 驱动（拖动/缩放都按指针位移算），不做 DOM 回灌测量：
  * 旧版用 ResizeObserver 读 offsetWidth，边框导致每帧涨 2px，窗口会自己长大。
@@ -197,6 +198,7 @@ window.__ModuleLoader__.load({
       fg: 'var(--dsw-alias-label-primary, #e6edf6)',
       fg2: 'var(--dsw-alias-label-secondary, #8b949e)',
       brand: 'var(--dsw-alias-brand-primary, #1f6feb)',
+      bad: 'var(--dsw-alias-label-error, #ff7b72)',
     };
 
     /** Candlestick glyph：四根不同高度的柱子 + 底线，56px 的图标栏里也认得出。 */
@@ -415,6 +417,19 @@ window.__ModuleLoader__.load({
         return () => window.removeEventListener('resize', onResize);
       }, []);
 
+      /**
+       * 标题栏下方的一句话提示。「浏览器打开」无论成败都要有反馈，
+       * 否则失败时又回到「点了没反应」。
+       */
+      const [notice, setNotice] = React.useState(null);
+      const noticeTimer = React.useRef(0);
+      const showNotice = React.useCallback((text, tone) => {
+        setNotice({ text, tone });
+        window.clearTimeout(noticeTimer.current);
+        noticeTimer.current = window.setTimeout(() => setNotice(null), tone === 'bad' ? 8000 : 3200);
+      }, []);
+      React.useEffect(() => () => window.clearTimeout(noticeTimer.current), []);
+
       if (!isVisited) return null;
 
       const startDrag = (event) => {
@@ -462,9 +477,40 @@ window.__ModuleLoader__.load({
         }
       };
 
-      /** 绝对 URL 才会被 Electron 交给系统默认浏览器，相对地址会被直接拒绝。 */
+      /**
+       * 交给系统的默认浏览器打开本入口。
+       *
+       * 不能用 window.open：这个 iframe 跑在 Electron 的 webview 里，主进程的
+       * `setWindowOpenHandler` 会把「同 host 端口 + 127.0.0.1」判成往应用自身
+       * 导航，直接 deny —— 点了既不弹窗也不报错。所以请 Host 半用系统 URL
+       * 处理器（rundll32 url.dll,FileProtocolHandler）拉起浏览器；万一系统里
+       * 没有关联程序，就把链接复制出来让用户自己粘。
+       */
       const openInBrowser = () => {
-        window.open(new URL(SRC, window.location.origin).href, '_blank', 'noopener');
+        const url = new URL(SRC, window.location.origin).href;
+        const copyLink = () => {
+          try {
+            // 没有 clipboard 权限也没关系：链接明写在提示条里，可以手动选中。
+            navigator.clipboard.writeText(url).catch(() => {});
+          } catch {
+            /* ignore */
+          }
+        };
+        fetch(`${SRC}api/open`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: '{}',
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (!data || !data.ok) throw new Error((data && data.error) || '没能启动系统浏览器');
+            showNotice(`已交给系统浏览器：${data.url || url}`, 'ok');
+          })
+          .catch((error) => {
+            copyLink();
+            const why = error && error.message ? error.message : String(error);
+            showNotice(`没能唤起系统浏览器（${why}），链接已复制：${url}`, 'bad');
+          });
       };
 
       const barButton = (label, onClick) => h('button', {
@@ -545,6 +591,17 @@ window.__ModuleLoader__.load({
               },
             }, '\u00d7'),
           ),
+          notice ? h('div', {
+            role: 'status',
+            'data-no-drag': true,
+            style: {
+              flex: '0 0 auto', padding: '6px 12px',
+              fontSize: 12, lineHeight: 1.5, wordBreak: 'break-all',
+              color: notice.tone === 'bad' ? V.bad : V.fg,
+              background: notice.tone === 'bad' ? 'rgba(248, 81, 73, .12)' : 'rgba(31, 111, 235, .12)',
+              borderBottom: `1px solid ${V.border}`,
+            },
+          }, notice.text) : null,
           h('iframe', {
             ref: frameEl,
             src: SRC,
